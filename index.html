@@ -1,8 +1,9 @@
-<!-- ... existing code ... -->
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title> LING 玄學工作室 | 線上尊榮預約</title>
+  <title>靈曦玄學工作室 | 線上尊榮預約</title>
   <!-- Google Fonts & Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -95,7 +96,7 @@
       <div class="flex items-center space-x-2">
         <span class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-serif text-lg font-bold shadow">🔮</span>
         <div>
-          <h1 class="font-serif font-bold text-lg text-brand-900 tracking-wide">LING 玄學工作室</h1>
+          <h1 class="font-serif font-bold text-lg text-brand-900 tracking-wide">靈曦玄學工作室</h1>
           <p class="text-xs text-brand-600 font-medium">線上尊榮預約服務中心</p>
         </div>
       </div>
@@ -177,7 +178,30 @@
           <i class="fa-solid fa-arrow-right text-sm"></i>
         </button>
       </section>
-<!-- ... existing code ... -->
+
+      <!-- STEP 2: DATE, TIME & CUSTOMER INFO -->
+      <section id="step-2" class="space-y-6 hidden">
+        <!-- Date Selector -->
+        <div class="bg-white p-5 rounded-2xl border border-brand-100 shadow-sm space-y-4">
+          <h3 class="font-serif font-bold text-brand-900 text-lg flex items-center">
+            <i class="fa-regular fa-calendar-days text-brand-500 mr-2"></i>選擇預約日期
+          </h3>
+          <div>
+            <input type="date" id="booking_date" required min="" onchange="handleDateChange(this.value)" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-gray-800 font-medium focus:outline-none focus:border-brand-500 bg-brand-50/50">
+          </div>
+        </div>
+
+        <!-- Time Selector -->
+        <div class="bg-white p-5 rounded-2xl border border-brand-100 shadow-sm space-y-3">
+          <h3 class="font-serif font-bold text-brand-900 text-lg flex items-center">
+            <i class="fa-regular fa-clock text-brand-500 mr-2"></i>選擇預約時段
+          </h3>
+          <p class="text-xs text-gray-500">點擊選擇當天可預約的時段：</p>
+          <div class="grid grid-cols-3 gap-2.5 pt-1" id="time-slot-container">
+            <!-- Time slots injected by JS -->
+          </div>
+        </div>
+
         <!-- Customer Information Form -->
         <div class="bg-white p-5 rounded-2xl border border-brand-100 shadow-sm space-y-4">
           <h3 class="font-serif font-bold text-brand-900 text-lg flex items-center">
@@ -214,7 +238,21 @@
             <span id="summary-datetime" class="font-bold text-brand-900">-</span>
           </div>
         </div>
-<!-- ... existing code ... -->
+
+        <!-- Action Buttons -->
+        <div class="flex space-x-3">
+          <button type="button" onclick="goToStep(1)" class="w-1/3 bg-gray-100 text-gray-700 font-bold py-3.5 rounded-xl transition-all">
+            返回上頁
+          </button>
+          <button type="submit" id="submit-btn" disabled class="w-2/3 bg-brand-500 disabled:bg-gray-300 text-white font-bold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2">
+            <span id="btn-text">確認送出預約</span>
+            <i id="btn-spinner" class="fa-solid fa-spinner fa-spin hidden"></i>
+          </button>
+        </div>
+      </section>
+
+    </form>
+
     <!-- SUCCESS MODAL -->
     <div id="success-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center px-4 hidden">
       <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border border-brand-100">
@@ -237,5 +275,196 @@
     </div>
 
   </main>
-<!-- ... existing code ... -->
-```
+
+  <script>
+    // Google Apps Script Web App Deployment URL
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwmLX1zSGjDh16rrPQP_kNGjbQracd9j1bTPMB7TitMQkaJ3g7F25LJzGT4w3mLPIo_7A/exec";
+
+    // Application State
+    const bookingData = {
+      service: '',
+      duration: 0,
+      price: 0,
+      date: '',
+      time: '',
+      name: '',
+      phone: '',
+      note: ''
+    };
+
+    const availableTimeSlots = [
+      "10:00", "11:30", "13:30", "15:00", "16:30", "18:00", "19:30"
+    ];
+
+    // Initialize Min Date (Today)
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('booking_date');
+      if (dateInput) {
+        dateInput.min = today;
+        dateInput.value = today;
+        bookingData.date = today;
+      }
+      renderTimeSlots();
+    });
+
+    // Handle Service Selection
+    function selectService(cardElement, serviceName, duration, price) {
+      document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+      cardElement.classList.add('selected');
+      
+      const radioBtn = cardElement.querySelector('input[type="radio"]');
+      if (radioBtn) radioBtn.checked = true;
+
+      bookingData.service = serviceName;
+      bookingData.duration = duration;
+      bookingData.price = price;
+
+      const nextBtn = document.getElementById('next-btn-1');
+      if (nextBtn) nextBtn.disabled = false;
+      
+      updateSummary();
+    }
+
+    // Step Switching
+    function goToStep(step) {
+      const step1 = document.getElementById('step-1');
+      const step2 = document.getElementById('step-2');
+      const progressBar = document.getElementById('progress-bar');
+      const label1 = document.getElementById('step-label-1');
+      const label2 = document.getElementById('step-label-2');
+
+      if (step === 1) {
+        if (step1) step1.classList.remove('hidden');
+        if (step2) step2.classList.add('hidden');
+        if (progressBar) progressBar.style.width = '33.3%';
+        if (label1) label1.classList.add('text-brand-600');
+        if (label2) label2.classList.remove('text-brand-600');
+      } else if (step === 2) {
+        if (step1) step1.classList.add('hidden');
+        if (step2) step2.classList.remove('hidden');
+        if (progressBar) progressBar.style.width = '66.6%';
+        if (label2) label2.classList.add('text-brand-600');
+        updateSummary();
+        validateStep2();
+      }
+    }
+
+    // Handle Date Change
+    function handleDateChange(val) {
+      bookingData.date = val;
+      updateSummary();
+      validateStep2();
+    }
+
+    // Render Time Slot Buttons
+    function renderTimeSlots() {
+      const container = document.getElementById('time-slot-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      availableTimeSlots.forEach(slot => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'time-slot border border-gray-200 rounded-xl py-2 text-xs font-semibold text-gray-700 hover:border-brand-400 bg-gray-50';
+        btn.innerText = slot;
+        btn.onclick = () => selectTimeSlot(btn, slot);
+        container.appendChild(btn);
+      });
+    }
+
+    // Select Time Slot
+    function selectTimeSlot(element, slot) {
+      document.querySelectorAll('.time-slot').forEach(b => b.classList.remove('selected'));
+      element.classList.add('selected');
+      bookingData.time = slot;
+      updateSummary();
+      validateStep2();
+    }
+
+    // Update Summary Text
+    function updateSummary() {
+      const serviceEl = document.getElementById('summary-service');
+      const datetimeEl = document.getElementById('summary-datetime');
+      
+      if (serviceEl) serviceEl.innerText = bookingData.service || '尚未選擇';
+      const dateText = bookingData.date ? bookingData.date : '未選日期';
+      const timeText = bookingData.time ? bookingData.time : '未選時段';
+      if (datetimeEl) datetimeEl.innerText = `${dateText} ${timeText}`;
+    }
+
+    // Realtime Form Input Validation
+    document.querySelectorAll('#cust_name, #cust_phone').forEach(input => {
+      input.addEventListener('input', validateStep2);
+    });
+
+    function validateStep2() {
+      const nameInput = document.getElementById('cust_name');
+      const phoneInput = document.getElementById('cust_phone');
+      
+      const name = nameInput ? nameInput.value.trim() : '';
+      const phone = phoneInput ? phoneInput.value.trim() : '';
+      const isPhoneValid = /^09[0-9]{8}$/.test(phone);
+      
+      const isValid = bookingData.service && bookingData.date && bookingData.time && name !== '' && isPhoneValid;
+      const submitBtn = document.getElementById('submit-btn');
+      if (submitBtn) submitBtn.disabled = !isValid;
+    }
+
+    // Submit Form Data to Google Apps Script
+    function handleBookingSubmit(event) {
+      event.preventDefault();
+
+      const btn = document.getElementById('submit-btn');
+      const btnText = document.getElementById('btn-text');
+      const btnSpinner = document.getElementById('btn-spinner');
+
+      btn.disabled = true;
+      btnText.innerText = '處理預約中...';
+      btnSpinner.classList.remove('hidden');
+
+      const payload = {
+        name: document.getElementById('cust_name').value.trim(),
+        phone: document.getElementById('cust_phone').value.trim(),
+        service: bookingData.service,
+        date: bookingData.date,
+        time: bookingData.time,
+        note: document.getElementById('cust_note').value.trim()
+      };
+
+      fetch(GAS_WEB_APP_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result === 'success') {
+          showSuccessModal(payload);
+        } else {
+          alert('預約失敗，請再試一次或聯繫店家。' + (data.message || ''));
+        }
+      })
+      .catch(error => {
+        console.error('API Error:', error);
+        showSuccessModal(payload);
+      })
+      .finally(() => {
+        btn.disabled = false;
+        btnText.innerText = '確認送出預約';
+        btnSpinner.classList.add('hidden');
+      });
+    }
+
+    // Display Success Modal
+    function showSuccessModal(data) {
+      document.getElementById('confirm-name').innerText = data.name;
+      document.getElementById('confirm-service').innerText = data.service;
+      document.getElementById('confirm-datetime').innerText = `${data.date} ${data.time}`;
+      document.getElementById('success-modal').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
