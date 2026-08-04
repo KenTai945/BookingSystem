@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LING 玄學工作室 | 線上尊榮預約</title>
-  <!-- Google Fonts & Tailwind CSS -->
+  <title>LING玄學工作室 | 線上尊榮預約</title>
+  
+  <!-- Google Fonts & Tailwind CSS & Font Awesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -25,12 +26,6 @@
               700: '#6d28d9',
               800: '#5b21b6',
               900: '#3b0764',
-            },
-            sage: {
-              50: '#fdf4ff',
-              100: '#fae8ff',
-              500: '#d946ef',
-              800: '#701a75',
             }
           },
           fontFamily: {
@@ -47,12 +42,6 @@
       font-family: 'Plus Jakarta Sans', 'Noto Serif TC', sans-serif;
       background-color: #fdfaff;
       color: #332d29;
-    }
-    
-    .glass-card {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(216, 180, 254, 0.3);
     }
     
     .service-card {
@@ -90,13 +79,12 @@
 </head>
 <body class="min-h-screen pb-12">
 
-  <!-- Top Header Nav -->
   <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-brand-100 px-4 py-4 shadow-sm">
     <div class="max-w-xl mx-auto flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <span class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center font-serif text-lg font-bold shadow">🔮</span>
         <div>
-          <h1 class="font-serif font-bold text-lg text-brand-900 tracking-wide">LING玄學工作室</h1>
+          <h1 class="font-serif font-bold text-lg text-brand-900 tracking-wide">靈曦玄學工作室</h1>
           <p class="text-xs text-brand-600 font-medium">線上尊榮預約服務中心</p>
         </div>
       </div>
@@ -109,7 +97,6 @@
 
   <main class="max-w-xl mx-auto px-4 mt-6">
     
-    <!-- Booking Progress Bar -->
     <div class="mb-6 bg-white rounded-2xl p-4 shadow-sm border border-brand-100">
       <div class="flex justify-between items-center text-xs font-semibold text-gray-500 mb-2">
         <span id="step-label-1" class="text-brand-600">1. 選擇項目</span>
@@ -220,7 +207,7 @@
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-gray-700 mb-1">特別需求與備註（例如：生辰八字時辰或問題概述）</label>
+              <label class="block text-xs font-bold text-gray-700 mb-1">特別需求與備註（生辰八字或問題概述）</label>
               <textarea id="cust_note" rows="2" placeholder="例：請提供出生年/月/日/時辰（如已知），或欲諮詢之主要問題..." class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500"></textarea>
             </div>
           </div>
@@ -253,23 +240,31 @@
 
     </form>
 
-    <!-- SUCCESS MODAL -->
+    <!-- SUCCESS MODAL WITH LINE BUTTON -->
     <div id="success-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center px-4 hidden">
       <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border border-brand-100">
         <div class="w-16 h-16 bg-purple-50 text-brand-600 rounded-full flex items-center justify-center mx-auto text-2xl">
           <i class="fa-solid fa-wand-magic-sparkles"></i>
         </div>
-        <h3 class="font-serif text-2xl font-bold text-brand-900">預約成功！</h3>
+        <h3 class="font-serif text-2xl font-bold text-brand-900">預約已送出！</h3>
         <p class="text-xs text-gray-600 leading-relaxed">
-          感謝您的預約。我們已收到您的資訊，玄學老師與專員將於營業時間內與您聯繫確認細節。
+          感謝您的預約。請點擊下方按鈕，跳轉至 LINE@ 傳送預約單給我們，老師將第一時間為您確認！
         </p>
+        
         <div class="bg-brand-50 p-4 rounded-xl text-left text-xs space-y-1.5 text-brand-900 border border-brand-100">
           <p><span class="text-gray-500">預約姓名：</span><span id="confirm-name" class="font-bold"></span></p>
           <p><span class="text-gray-500">諮詢項目：</span><span id="confirm-service" class="font-bold"></span></p>
           <p><span class="text-gray-500">日期時間：</span><span id="confirm-datetime" class="font-bold"></span></p>
         </div>
-        <button onclick="window.location.reload()" class="w-full bg-brand-500 text-white font-bold py-3 rounded-xl shadow-md">
-          完成
+
+        <!-- LINE Confirm Button -->
+        <a id="line-confirm-btn" href="#" target="_blank" class="w-full bg-[#06C755] hover:bg-[#05b34c] text-white font-bold py-3.5 rounded-xl shadow-md flex items-center justify-center space-x-2 transition-all">
+          <i class="fa-brands fa-line text-xl"></i>
+          <span>點我傳送預約單至 LINE@ 確認</span>
+        </a>
+
+        <button onclick="window.location.reload()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl text-xs">
+          關閉視窗
         </button>
       </div>
     </div>
@@ -277,8 +272,11 @@
   </main>
 
   <script>
-    // Google Apps Script Web App Deployment URL
+    // 1. Google Apps Script Web App API 網址
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwmLX1zSGjDh16rrPQP_kNGjbQracd9j1bTPMB7TitMQkaJ3g7F25LJzGT4w3mLPIo_7A/exec";
+
+    // 2. 👇 請在此處修改為您的 LINE 官方帳號 ID (例如 "@123abcde" 或 "@lingxi") 👇
+    const LINE_OFFICIAL_ID = "@030ubuie";
 
     // Application State
     const bookingData = {
@@ -441,11 +439,7 @@
       })
       .then(response => response.json())
       .then(data => {
-        if (data.result === 'success') {
-          showSuccessModal(payload);
-        } else {
-          alert('預約失敗，請再試一次或聯繫店家。' + (data.message || ''));
-        }
+        showSuccessModal(payload);
       })
       .catch(error => {
         console.error('API Error:', error);
@@ -458,11 +452,23 @@
       });
     }
 
-    // Display Success Modal
     function showSuccessModal(data) {
       document.getElementById('confirm-name').innerText = data.name;
       document.getElementById('confirm-service').innerText = data.service;
       document.getElementById('confirm-datetime').innerText = `${data.date} ${data.time}`;
+      
+      // 動態組合傳送到 LINE 的訊息
+      const lineText = `你好，我已完成線上預約諮詢！%0A【預約資料】%0A姓名：${encodeURIComponent(data.name)}%0A電話：${data.phone}%0A項目：${encodeURIComponent(data.service)}%0A時間：${data.date} ${data.time}${data.note ? '%0A備註：' + encodeURIComponent(data.note) : ''}`;
+      
+      // 清理 @ 符號並組合 LINE URL
+      const cleanLineId = LINE_OFFICIAL_ID.replace('@', '');
+      const lineUrl = `https://line.me/R/oaMessage/@${cleanLineId}/?${lineText}`;
+      
+      const lineBtn = document.getElementById('line-confirm-btn');
+      if (lineBtn) {
+        lineBtn.href = lineUrl;
+      }
+
       document.getElementById('success-modal').classList.remove('hidden');
     }
   </script>
